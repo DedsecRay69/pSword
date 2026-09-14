@@ -1,56 +1,85 @@
-# Welcome to your Expo app 👋
+# pSword
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+<p align="center">
+  <img src="assets/images/pSword_logo.jpeg" width="100" alt="pSword Logo">
+</p>
 
-## Get started
+## Descripción
 
-1. Install dependencies
+**pSword** es una aplicación móvil de código abierto orientada a la **gestión segura de credenciales y contraseñas**.
 
-   ```bash
-   npm install
-   ```
+El proyecto nace como una alternativa accesible para ayudar a mitigar una problemática común: el uso de contraseñas débiles, repetidas o fáciles de adivinar.
 
-2. Start the app
+pSword busca proporcionar una interfaz sencilla para que los usuarios puedan gestionar sus credenciales de forma segura mediante una **bóveda protegida por una contraseña maestra**.
 
-   ```bash
-   npx expo start
-   ```
+---
 
-In the output, you'll find options to open the app in a
+## Características
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### Implementadas
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- Interfaz de autenticación.
+- Configuración de contraseña maestra.
+- Validación de confirmación de contraseña.
+- Mostrar u ocultar la contraseña.
+- Navegación entre las pantallas de autenticación.
+- Acceso al repositorio de GitHub desde la aplicación.
+- Interfaz adaptada para dispositivos móviles.
 
-## Get a fresh project
+### En desarrollo
 
-When you're ready, run:
+- Almacenamiento seguro de la contraseña maestra.
+- Bóveda de credenciales.
+- Agregar, editar y eliminar credenciales.
+- Generador de contraseñas seguras.
+- Cifrado de la información almacenada.
+- Verificación de integridad de la bóveda.
+- Implementación de blockchain como mecanismo adicional de integridad.
 
-```bash
-npm run reset-project
-```
+---
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Tecnologías
 
-### Other setup steps
+pSword utiliza las siguientes tecnologías:
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+- **React Native** — Desarrollo de la aplicación móvil.
+- **Expo** — Entorno y herramientas para el desarrollo con React Native.
+- **TypeScript** — Lenguaje utilizado para el desarrollo.
+- **Expo Router** — Navegación basada en archivos.
+- **Git** — Control de versiones.
+- **GitHub** — Repositorio y colaboración.
 
-## Learn more
+Para los componentes de seguridad se contempla el uso de:
 
-To learn more about developing your project with Expo, look at the following resources:
+- **Criptografía** para proteger la información almacenada.
+- **Funciones de derivación de claves (KDF)** para el manejo seguro de la contraseña maestra.
+- **Cifrado autenticado** para proteger la bóveda.
+- **Blockchain / hashes encadenados** como mecanismo de verificación de integridad.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+> Las tecnologías de seguridad se encuentran actualmente en fase de diseño e implementación.
 
-## Join the community
+---
 
-Join our community of developers creating universal apps.
+## Estructura del proyecto
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```text
+pSword/
+├── assets/
+│   └── images/
+│       ├── pSword_banner.png
+│       ├── pSword_logo.jpeg
+│       └── ...
+│
+├── src/
+│   ├── app/
+│   │   ├── index.tsx
+│   │   ├── setup-password.tsx
+│   │   └── _layout.tsx
+│   │
+│   ├── components/
+│   ├── constants/
+│   └── hooks/
+│
+├── package.json
+├── tsconfig.json
+└── README.md
