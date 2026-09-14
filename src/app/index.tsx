@@ -46,7 +46,7 @@ export default function HomeScreen() {
         <Text style={styles.buttonText}>INGRESAR</Text>
       </Pressable>
 
-      {/* Configuración de contraseña */}
+      {/* Configuración de contraseña (setup-password.tsx es la pantalla para configurar la contraseña)*/}
       <Pressable
         onPress={() => router.push('/setup-password')}
       >
