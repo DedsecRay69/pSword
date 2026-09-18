@@ -1,4 +1,7 @@
-import { useState } from 'react';
+// Este script gestiona el inicio de sesión y la interacción entre la interfaz 
+// y la lógica de la contraseña maestra definida en masterPassword.ts.
+import { useEffect, useState } from 'react';
+
 import {
   Image,
   Linking,
@@ -9,10 +12,72 @@ import {
   View,
 } from 'react-native';
 
+import {
+  hasMasterPassword,
+  verifyMasterPassword,
+} from '@/core/masterPassword';
 import { router } from 'expo-router';
 
 export default function HomeScreen() {
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [hasPassword, setHasPassword] = useState(false);
+  const [error, setError] = useState('');
+
+  // Comprueba si ya existe una contraseña maestra
+  useEffect(() => {
+    const checkPassword = async () => {
+      try {
+        const exists = await hasMasterPassword();
+
+        setHasPassword(exists);
+
+        // Primera ejecución: lleva a configurar la contraseña
+        if (!exists) {
+          router.replace('/setup-password');
+        }
+      } catch (error) {
+        console.error('Error al comprobar la contraseña:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkPassword();
+  }, []);
+
+  // Comprueba la contraseña ingresada
+  const handleLogin = async () => {
+    if (!password) {
+      setError('Ingrese su contraseña.');
+      return;
+    }
+
+    try {
+      setError('');
+
+      const valid = await verifyMasterPassword(password);
+
+      if (valid) {
+        router.replace('/test-vault');
+      } else {
+        setError('Contraseña incorrecta.');
+        setPassword('');
+      }
+    } catch (error) {
+      console.error('Error al verificar la contraseña:', error);
+      setError('No se pudo verificar la contraseña.');
+    }
+  };
+
+  // Evita mostrar el login mientras se comprueba SecureStore
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.loadingText}>Cargando...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -37,35 +102,54 @@ export default function HomeScreen() {
         placeholder="Ingrese su contraseña"
         placeholderTextColor="#777"
         value={password}
-        onChangeText={setPassword}
+        onChangeText={(text) => {
+          setPassword(text);
+          setError('');
+        }}
         secureTextEntry
       />
 
+      {/* Mensaje de error */}
+      {error !== '' && (
+        <Text style={styles.errorText}>
+          {error}
+        </Text>
+      )}
+
       {/* Botón ingresar */}
-      <Pressable style={styles.button}>
+      <Pressable
+        style={styles.button}
+        onPress={handleLogin}
+      >
         <Text style={styles.buttonText}>INGRESAR</Text>
       </Pressable>
 
-      {/* Configuración de contraseña (setup-password.tsx es la pantalla para configurar la contraseña)*/}
-      <Pressable
-        onPress={() => router.push('/setup-password')}
-      >
-        <Text style={styles.link}>
-          ¿No tiene una contraseña?{' '}
-          <Text style={styles.linkHighlight}>ingrese aquí</Text>
-        </Text>
-      </Pressable>
+      {/* Configuración de contraseña */}
+      {!hasPassword && (
+        <Pressable
+          onPress={() => router.push('/setup-password')}
+        >
+          <Text style={styles.link}>
+            ¿No tiene una contraseña?{' '}
+            <Text style={styles.linkHighlight}>
+              ingrese aquí
+            </Text>
+          </Text>
+        </Pressable>
+      )}
 
       {/* GitHub */}
       <Pressable
         style={styles.githubButton}
-        onPress={() => Linking.openURL('https://github.com/DedsecRay69/pSword')}
+        onPress={() =>
+          Linking.openURL('https://github.com/DedsecRay69/pSword')
+        }
       >
-      <Image
-        source={require('../../assets/images/github.png')}
-        style={styles.githubIcon}
-        resizeMode="contain"
-      />
+        <Image
+          source={require('../../assets/images/github.png')}
+          style={styles.githubIcon}
+          resizeMode="contain"
+        />
       </Pressable>
 
     </View>
@@ -102,7 +186,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     color: '#000',
     fontSize: 16,
-    marginBottom: 20,
+    marginBottom: 10,
   },
 
   button: {
@@ -114,12 +198,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 25,
+    marginTop: 10,
   },
 
   buttonText: {
     color: '#000',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+
+  errorText: {
+    color: '#ff4444',
+    fontSize: 14,
+    marginTop: 5,
   },
 
   link: {
@@ -134,20 +225,20 @@ const styles = StyleSheet.create({
   },
 
   githubButton: {
-  position: 'absolute',
-  bottom: 20,
-  right: 20,
-  padding: 10,
-},
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    padding: 10,
+  },
 
-githubIcon: {
-  width: 35,
-  height: 35,
-},
+  githubIcon: {
+    width: 35,
+    height: 35,
+  },
 
-  githubText: {
+  loadingText: {
     color: '#00ff66',
-    fontSize: 14,
-    fontWeight: 'bold',
+    fontSize: 16,
   },
 });
+

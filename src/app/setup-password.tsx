@@ -1,25 +1,55 @@
+// Este script le permite al usuario crear y confirmar la contraseña maestra
+// antes de almacenarla de forma segura mediante masterPassword.ts
+
 import { useState } from 'react';
 
 import {
-    Image,
-    Pressable,
-    StyleSheet,
-    Text,
-    TextInput,
-    View,
+  Image,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from 'react-native';
 
 import { router } from 'expo-router';
 
+// Importa la función encargada de almacenar la contraseña
+import { saveMasterPassword } from '@/core/masterPassword';
+
 export default function SetupPasswordScreen() {
+
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  // Comprueba que ambas contraseñas coincidan y no estén vacías
   const passwordsMatch =
     password === confirmPassword && password.length > 0;
+
+  // Guarda la contraseña y continúa al siguiente flujo
+  const handleSavePassword = async () => {
+
+    if (!passwordsMatch) {
+      return;
+    }
+
+    try {
+
+      // Almacena la contraseña de forma segura
+      await saveMasterPassword(password);
+
+      // Lleva al usuario a la pantalla de prueba
+      router.replace('/test-vault');
+
+    } catch (error) {
+
+      // Muestra el error en la consola durante el desarrollo
+      console.error('Error al guardar la contraseña:', error);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -45,6 +75,7 @@ export default function SetupPasswordScreen() {
 
       {/* Nueva contraseña */}
       <View style={styles.inputContainer}>
+
         <TextInput
           style={styles.input}
           placeholder="Nueva contraseña"
@@ -62,10 +93,12 @@ export default function SetupPasswordScreen() {
             {showPassword ? 'OCULTAR' : 'MOSTRAR'}
           </Text>
         </Pressable>
+
       </View>
 
       {/* Confirmar contraseña */}
       <View style={styles.inputContainer}>
+
         <TextInput
           style={styles.input}
           placeholder="Confirme su contraseña"
@@ -85,6 +118,7 @@ export default function SetupPasswordScreen() {
             {showConfirmPassword ? 'OCULTAR' : 'MOSTRAR'}
           </Text>
         </Pressable>
+
       </View>
 
       {/* Mensaje de validación */}
@@ -116,9 +150,7 @@ export default function SetupPasswordScreen() {
           !passwordsMatch && styles.buttonDisabled,
         ]}
         disabled={!passwordsMatch}
-        onPress={() => {
-          console.log('Contraseña válida. Próximamente se almacenará de forma segura.');
-        }}
+        onPress={handleSavePassword}
       >
         <Text style={styles.buttonText}>
           GUARDAR CONTRASEÑA
@@ -143,6 +175,7 @@ export default function SetupPasswordScreen() {
 }
 
 const styles = StyleSheet.create({
+
   container: {
     flex: 1,
     backgroundColor: '#000',
@@ -264,4 +297,6 @@ const styles = StyleSheet.create({
     color: '#00ff66',
     fontWeight: 'bold',
   },
+
 });
+
