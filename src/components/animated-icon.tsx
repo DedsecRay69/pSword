@@ -1,3 +1,4 @@
+/** Icono con animación para interacciones visuales de la interfaz nativa. */
 import { Image } from 'expo-image';
 import * as SplashScreen from 'expo-splash-screen';
 import { useState } from 'react';

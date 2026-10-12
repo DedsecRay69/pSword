@@ -1,3 +1,4 @@
+/** Fila informativa reutilizable para mostrar una sugerencia o ayuda breve. */
 import type { ReactNode } from 'react';
 import { View, StyleSheet } from 'react-native';
 

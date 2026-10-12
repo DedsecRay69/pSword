@@ -1,6 +1,11 @@
-// Este script gestiona el inicio de sesión y la interacción entre la interfaz 
+/**
+ * Pantalla de acceso de pSword.
+ * Comprueba si ya existe una contraseña maestra, redirige a su configuración
+ * cuando es el primer uso y verifica la contraseña antes de permitir el acceso.
+ */
+// Este script gestiona el inicio de sesión y la interacción entre la interfaz
 // y la lógica de la contraseña maestra definida en masterPassword.ts.
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 import {
   Image,
@@ -10,22 +15,21 @@ import {
   Text,
   TextInput,
   View,
-} from 'react-native';
+} from "react-native";
 
-import {
-  hasMasterPassword,
-  verifyMasterPassword,
-} from '@/core/masterPassword';
-import { router } from 'expo-router';
+import { hasMasterPassword, verifyMasterPassword } from "@/core/masterPassword";
+import { router } from "expo-router";
 
+// Componente principal de acceso: dirige al usuario según el estado de la contraseña maestra.
 export default function HomeScreen() {
-  const [password, setPassword] = useState('');
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(true);
   const [hasPassword, setHasPassword] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   // Comprueba si ya existe una contraseña maestra
   useEffect(() => {
+// Comprueba si ya existe una contraseña maestra para decidir el flujo inicial.
     const checkPassword = async () => {
       try {
         const exists = await hasMasterPassword();
@@ -34,10 +38,10 @@ export default function HomeScreen() {
 
         // Primera ejecución: lleva a configurar la contraseña
         if (!exists) {
-          router.replace('/setup-password');
+          router.replace("/setup-password");
         }
       } catch (error) {
-        console.error('Error al comprobar la contraseña:', error);
+        console.error("Error al comprobar la contraseña:", error);
       } finally {
         setLoading(false);
       }
@@ -49,24 +53,24 @@ export default function HomeScreen() {
   // Comprueba la contraseña ingresada
   const handleLogin = async () => {
     if (!password) {
-      setError('Ingrese su contraseña.');
+      setError("Ingrese su contraseña.");
       return;
     }
 
     try {
-      setError('');
+      setError("");
 
       const valid = await verifyMasterPassword(password);
 
       if (valid) {
-        router.replace('/test-vault');
+        router.replace("/generador");
       } else {
-        setError('Contraseña incorrecta.');
-        setPassword('');
+        setError("Contraseña incorrecta.");
+        setPassword("");
       }
     } catch (error) {
-      console.error('Error al verificar la contraseña:', error);
-      setError('No se pudo verificar la contraseña.');
+      console.error("Error al verificar la contraseña:", error);
+      setError("No se pudo verificar la contraseña.");
     }
   };
 
@@ -81,17 +85,16 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-
       {/* Logo ASCII */}
       <Image
-        source={require('../../assets/images/pSword_banner.png')}
+        source={require("../../assets/images/pSword_banner.png")}
         style={styles.banner}
         resizeMode="contain"
       />
 
       {/* Candado */}
       <Image
-        source={require('../../assets/images/pSword_logo.jpeg')}
+        source={require("../../assets/images/pSword_logo.jpeg")}
         style={styles.logo}
         resizeMode="contain"
       />
@@ -104,36 +107,25 @@ export default function HomeScreen() {
         value={password}
         onChangeText={(text) => {
           setPassword(text);
-          setError('');
+          setError("");
         }}
         secureTextEntry
       />
 
       {/* Mensaje de error */}
-      {error !== '' && (
-        <Text style={styles.errorText}>
-          {error}
-        </Text>
-      )}
+      {error !== "" && <Text style={styles.errorText}>{error}</Text>}
 
       {/* Botón ingresar */}
-      <Pressable
-        style={styles.button}
-        onPress={handleLogin}
-      >
+      <Pressable style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>INGRESAR</Text>
       </Pressable>
 
       {/* Configuración de contraseña */}
       {!hasPassword && (
-        <Pressable
-          onPress={() => router.push('/setup-password')}
-        >
+        <Pressable onPress={() => router.push("/setup-password")}>
           <Text style={styles.link}>
-            ¿No tiene una contraseña?{' '}
-            <Text style={styles.linkHighlight}>
-              ingrese aquí
-            </Text>
+            ¿No tiene una contraseña?{" "}
+            <Text style={styles.linkHighlight}>ingrese aquí</Text>
           </Text>
         </Pressable>
       )}
@@ -141,32 +133,30 @@ export default function HomeScreen() {
       {/* GitHub */}
       <Pressable
         style={styles.githubButton}
-        onPress={() =>
-          Linking.openURL('https://github.com/DedsecRay69/pSword')
-        }
+        onPress={() => Linking.openURL("https://github.com/DedsecRay69/pSword")}
       >
         <Image
-          source={require('../../assets/images/github.png')}
+          source={require("../../assets/images/github.png")}
           style={styles.githubIcon}
           resizeMode="contain"
         />
       </Pressable>
-
     </View>
   );
 }
 
+// Estilos de la pantalla de acceso y sus elementos visuales.
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#000",
+    alignItems: "center",
+    justifyContent: "center",
     paddingHorizontal: 30,
   },
 
   banner: {
-    width: '85%',
+    width: "85%",
     height: 200,
     marginBottom: 15,
   },
@@ -178,54 +168,54 @@ const styles = StyleSheet.create({
   },
 
   input: {
-    width: '100%',
+    width: "100%",
     maxWidth: 400,
     height: 50,
-    backgroundColor: '#e6e6e6',
+    backgroundColor: "#e6e6e6",
     borderRadius: 8,
     paddingHorizontal: 15,
-    color: '#000',
+    color: "#000",
     fontSize: 16,
     marginBottom: 10,
   },
 
   button: {
-    width: '100%',
+    width: "100%",
     maxWidth: 400,
     height: 50,
-    backgroundColor: '#00ff66',
+    backgroundColor: "#00ff66",
     borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: 25,
     marginTop: 10,
   },
 
   buttonText: {
-    color: '#000',
+    color: "#000",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 
   errorText: {
-    color: '#ff4444',
+    color: "#ff4444",
     fontSize: 14,
     marginTop: 5,
   },
 
   link: {
-    color: '#aaa',
+    color: "#aaa",
     fontSize: 14,
     marginBottom: 25,
   },
 
   linkHighlight: {
-    color: '#00ff66',
-    fontWeight: 'bold',
+    color: "#00ff66",
+    fontWeight: "bold",
   },
 
   githubButton: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 20,
     right: 20,
     padding: 10,
@@ -237,8 +227,7 @@ const styles = StyleSheet.create({
   },
 
   loadingText: {
-    color: '#00ff66',
+    color: "#00ff66",
     fontSize: 16,
   },
 });
-

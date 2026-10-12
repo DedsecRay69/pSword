@@ -1,3 +1,4 @@
+/** Variante web de la navegación inferior, adaptada al entorno de navegador. */
 import {
   Tabs,
   TabList,

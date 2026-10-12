@@ -1,3 +1,8 @@
+/**
+ * Funciones relacionadas con la contraseña maestra.
+ * Encapsula la comprobación, verificación y persistencia de los datos necesarios
+ * para el acceso, usando las dependencias de seguridad definidas en este módulo.
+ */
 // Este script gestiona la creación, almacenamiento y verificación de la contraseña maestra 
 // mediante SecureStore y hash SHA-256.
 import * as Crypto from "expo-crypto";
@@ -36,6 +41,7 @@ export async function saveMasterPassword(
 }
 
 // Comprueba si la contraseña ingresada coincide con la almacenada
+// Compara la contraseña introducida con la representación guardada.
 export async function verifyMasterPassword(
   password: string
 ): Promise<boolean> {

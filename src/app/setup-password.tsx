@@ -1,7 +1,12 @@
+/**
+ * Pantalla de configuración de la contraseña maestra.
+ * Recoge y valida la contraseña inicial y delega su almacenamiento seguro a
+ * las funciones definidas en core/masterPassword.ts.
+ */
 // Este script le permite al usuario crear y confirmar la contraseña maestra
 // antes de almacenarla de forma segura mediante masterPassword.ts
 
-import { useState } from 'react';
+import { useState } from "react";
 
 import {
   Image,
@@ -10,72 +15,63 @@ import {
   Text,
   TextInput,
   View,
-} from 'react-native';
+} from "react-native";
 
-import { router } from 'expo-router';
+import { router } from "expo-router";
 
 // Importa la función encargada de almacenar la contraseña
-import { saveMasterPassword } from '@/core/masterPassword';
+import { saveMasterPassword } from "@/core/masterPassword";
 
+// Componente para crear y confirmar la contraseña maestra durante la configuración inicial.
 export default function SetupPasswordScreen() {
-
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Comprueba que ambas contraseñas coincidan y no estén vacías
-  const passwordsMatch =
-    password === confirmPassword && password.length > 0;
+  const passwordsMatch = password === confirmPassword && password.length > 0;
 
   // Guarda la contraseña y continúa al siguiente flujo
   const handleSavePassword = async () => {
-
     if (!passwordsMatch) {
       return;
     }
 
     try {
-
       // Almacena la contraseña de forma segura
       await saveMasterPassword(password);
 
       // Lleva al usuario a la pantalla de prueba
-      router.replace('/test-vault');
-
+      router.replace("/generador");
     } catch (error) {
-
       // Muestra el error en la consola durante el desarrollo
-      console.error('Error al guardar la contraseña:', error);
+      console.error("Error al guardar la contraseña:", error);
     }
   };
 
   return (
     <View style={styles.container}>
-
       {/* Logo ASCII */}
       <Image
-        source={require('../../assets/images/pSword_banner.png')}
+        source={require("../../assets/images/pSword_banner.png")}
         style={styles.banner}
         resizeMode="contain"
       />
 
       {/* Candado */}
       <Image
-        source={require('../../assets/images/pSword_logo.jpeg')}
+        source={require("../../assets/images/pSword_logo.jpeg")}
         style={styles.logo}
         resizeMode="contain"
       />
 
       {/* Título */}
-      <Text style={styles.title}>
-        [ CONFIGURAR CONTRASEÑA MAESTRA ]
-      </Text>
+      <Text style={styles.title}>[ CONFIGURAR CONTRASEÑA MAESTRA ]</Text>
 
       {/* Nueva contraseña */}
       <View style={styles.inputContainer}>
-
         <TextInput
           style={styles.input}
           placeholder="Nueva contraseña"
@@ -90,15 +86,13 @@ export default function SetupPasswordScreen() {
           onPress={() => setShowPassword(!showPassword)}
         >
           <Text style={styles.eyeText}>
-            {showPassword ? 'OCULTAR' : 'MOSTRAR'}
+            {showPassword ? "OCULTAR" : "MOSTRAR"}
           </Text>
         </Pressable>
-
       </View>
 
       {/* Confirmar contraseña */}
       <View style={styles.inputContainer}>
-
         <TextInput
           style={styles.input}
           placeholder="Confirme su contraseña"
@@ -110,82 +104,61 @@ export default function SetupPasswordScreen() {
 
         <Pressable
           style={styles.eyeButton}
-          onPress={() =>
-            setShowConfirmPassword(!showConfirmPassword)
-          }
+          onPress={() => setShowConfirmPassword(!showConfirmPassword)}
         >
           <Text style={styles.eyeText}>
-            {showConfirmPassword ? 'OCULTAR' : 'MOSTRAR'}
+            {showConfirmPassword ? "OCULTAR" : "MOSTRAR"}
           </Text>
         </Pressable>
-
       </View>
 
       {/* Mensaje de validación */}
       {confirmPassword.length > 0 && (
-        <Text
-          style={
-            passwordsMatch
-              ? styles.successText
-              : styles.errorText
-          }
-        >
+        <Text style={passwordsMatch ? styles.successText : styles.errorText}>
           {passwordsMatch
-            ? 'Las contraseñas coinciden.'
-            : 'Las contraseñas no coinciden.'}
+            ? "Las contraseñas coinciden."
+            : "Las contraseñas no coinciden."}
         </Text>
       )}
 
       {/* Recomendación */}
       <Text style={styles.recommendation}>
-        Se recomienda utilizar una contraseña larga y difícil
-        de adivinar. Esta contraseña será utilizada para
-        proteger su bóveda.
+        Se recomienda utilizar una contraseña larga y difícil de adivinar. Esta
+        contraseña será utilizada para proteger su bóveda.
       </Text>
 
       {/* Guardar */}
       <Pressable
-        style={[
-          styles.button,
-          !passwordsMatch && styles.buttonDisabled,
-        ]}
+        style={[styles.button, !passwordsMatch && styles.buttonDisabled]}
         disabled={!passwordsMatch}
         onPress={handleSavePassword}
       >
-        <Text style={styles.buttonText}>
-          GUARDAR CONTRASEÑA
-        </Text>
+        <Text style={styles.buttonText}>GUARDAR CONTRASEÑA</Text>
       </Pressable>
 
       {/* Volver al login */}
-      <Pressable
-        onPress={() => router.back()}
-        style={styles.backButton}
-      >
+      <Pressable onPress={() => router.back()} style={styles.backButton}>
         <Text style={styles.backText}>
-          ¿Ya tiene una contraseña?{' '}
-          <Text style={styles.linkHighlight}>
-            volver al inicio
-          </Text>
+          ¿Ya tiene una contraseña?{" "}
+          <Text style={styles.linkHighlight}>volver al inicio</Text>
         </Text>
       </Pressable>
-
     </View>
   );
 }
 
+// Estilos del formulario para crear la contraseña maestra.
 const styles = StyleSheet.create({
-
   container: {
     flex: 1,
-    backgroundColor: '#000',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#000",
+    alignItems: "center",
+    justifyContent: "center",
     paddingHorizontal: 30,
   },
 
   banner: {
-    width: '85%',
+    width: "85%",
     height: 120,
     marginBottom: 10,
   },
@@ -197,80 +170,80 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    color: '#00ff66',
+    color: "#00ff66",
     fontSize: 16,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: "bold",
+    textAlign: "center",
     marginBottom: 25,
   },
 
   inputContainer: {
-    width: '100%',
+    width: "100%",
     maxWidth: 400,
     height: 50,
     marginBottom: 15,
-    position: 'relative',
+    position: "relative",
   },
 
   input: {
-    width: '100%',
-    height: '100%',
-    backgroundColor: '#e6e6e6',
+    width: "100%",
+    height: "100%",
+    backgroundColor: "#e6e6e6",
     borderRadius: 8,
     paddingHorizontal: 15,
     paddingRight: 90,
-    color: '#000',
+    color: "#000",
     fontSize: 16,
   },
 
   eyeButton: {
-    position: 'absolute',
+    position: "absolute",
     right: 10,
     top: 0,
-    height: '100%',
-    justifyContent: 'center',
+    height: "100%",
+    justifyContent: "center",
   },
 
   eyeText: {
-    color: '#333',
+    color: "#333",
     fontSize: 11,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 
   successText: {
-    width: '100%',
+    width: "100%",
     maxWidth: 400,
-    color: '#00ff66',
+    color: "#00ff66",
     fontSize: 12,
     marginBottom: 10,
   },
 
   errorText: {
-    width: '100%',
+    width: "100%",
     maxWidth: 400,
-    color: '#ff4444',
+    color: "#ff4444",
     fontSize: 12,
     marginBottom: 10,
   },
 
   recommendation: {
-    width: '100%',
+    width: "100%",
     maxWidth: 400,
-    color: '#888',
+    color: "#888",
     fontSize: 12,
-    textAlign: 'center',
+    textAlign: "center",
     lineHeight: 18,
     marginBottom: 20,
   },
 
   button: {
-    width: '100%',
+    width: "100%",
     maxWidth: 400,
     height: 50,
-    backgroundColor: '#00ff66',
+    backgroundColor: "#00ff66",
     borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: 20,
   },
 
@@ -279,9 +252,9 @@ const styles = StyleSheet.create({
   },
 
   buttonText: {
-    color: '#000',
+    color: "#000",
     fontSize: 15,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 
   backButton: {
@@ -289,14 +262,12 @@ const styles = StyleSheet.create({
   },
 
   backText: {
-    color: '#aaa',
+    color: "#aaa",
     fontSize: 13,
   },
 
   linkHighlight: {
-    color: '#00ff66',
-    fontWeight: 'bold',
+    color: "#00ff66",
+    fontWeight: "bold",
   },
-
 });
-

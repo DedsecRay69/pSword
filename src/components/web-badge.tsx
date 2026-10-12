@@ -1,3 +1,4 @@
+/** Insignia visual para identificar un sitio o una referencia web en la interfaz. */
 import { version } from 'expo/package.json';
 import { Image } from 'expo-image';
 import { useColorScheme, StyleSheet } from 'react-native';

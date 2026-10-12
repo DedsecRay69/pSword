@@ -1,3 +1,4 @@
+/** Navegación inferior reutilizable de la aplicación para las pantallas principales. */
 import { NativeTabs } from 'expo-router/unstable-native-tabs';
 import { useColorScheme } from 'react-native';
 

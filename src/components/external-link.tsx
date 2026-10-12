@@ -1,3 +1,4 @@
+/** Enlace reutilizable que abre una dirección externa al tocarlo. */
 import { Href, Link } from 'expo-router';
 import { openBrowserAsync, WebBrowserPresentationStyle } from 'expo-web-browser';
 import { type ComponentProps } from 'react';

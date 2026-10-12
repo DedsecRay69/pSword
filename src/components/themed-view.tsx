@@ -1,3 +1,4 @@
+/** Contenedor que aplica colores de fondo según el tema activo. */
 import { View, type ViewProps } from 'react-native';
 
 import { ThemeColor } from '@/constants/theme';
