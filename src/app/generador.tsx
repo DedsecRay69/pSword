@@ -15,11 +15,13 @@ import {
 } from "react-native";
 
 import * as Clipboard from "expo-clipboard";
-import { router } from "expo-router";
+import { Redirect, router } from "expo-router";
 
 import GeneratorCard from "@/components/boveda/GeneratorCard";
 import HistoryCard from "@/components/boveda/HistoryCard";
 import ParametersCard from "@/components/boveda/ParametersCard";
+import { useVault } from "@/context/VaultContext";
+import { randomString } from "@/core/passwordGenerator";
 
 const GREEN = "#00ff66";
 const BACKGROUND = "#202020";
@@ -31,6 +33,7 @@ type HistoryItem = {
 };
 
 export default function TestVaultScreen() {
+  const { isUnlocked, lockVault } = useVault();
   const [length, setLength] = useState(16);
 
   const [useUppercase, setUseUppercase] = useState(true);
@@ -90,13 +93,8 @@ export default function TestVaultScreen() {
       return;
     }
 
-    let password = "";
-
-    for (let i = 0; i < length; i++) {
-      const index = Math.floor(Math.random() * availableCharacters.length);
-
-      password += availableCharacters[index];
-    }
+    // Aleatoriedad criptográfica (no Math.random).
+    const password = randomString(availableCharacters, length);
 
     setGeneratedPassword(password);
 
@@ -172,6 +170,9 @@ export default function TestVaultScreen() {
     setHistory([]);
   };
 
+  // Sin sesión desbloqueada no se muestra nada.
+  if (!isUnlocked) return <Redirect href="/" />;
+
   return (
     <View style={styles.screen}>
       <ScrollView
@@ -189,7 +190,7 @@ export default function TestVaultScreen() {
 
           <View style={styles.headerActions}>
             <View style={styles.securityBadge}>
-              <Text style={styles.securityBadgeText}>🔒 AES-256</Text>
+              <Text style={styles.securityBadgeText}>🔒 XCHACHA20</Text>
             </View>
 
             <Pressable
@@ -282,7 +283,7 @@ export default function TestVaultScreen() {
 
         {/* LOGOUT */}
 
-        <Pressable style={styles.logout} onPress={() => router.replace("/")}>
+        <Pressable style={styles.logout} onPress={() => { lockVault(); router.replace("/"); }}>
           <Text style={styles.logoutText}>CERRAR SESIÓN</Text>
         </Pressable>
       </ScrollView>

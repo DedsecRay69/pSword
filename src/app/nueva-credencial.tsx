@@ -18,11 +18,12 @@ import {
 } from "react-native";
 
 import * as Clipboard from "expo-clipboard";
-import { router } from "expo-router";
+import { Redirect, router } from "expo-router";
 
 import GeneratorCard from "@/components/boveda/GeneratorCard";
 import ParametersCard from "@/components/boveda/ParametersCard";
 import { useVault } from "@/context/VaultContext";
+import { randomString } from "@/core/passwordGenerator";
 
 // Colores principales de la identidad visual de pSword.
 const GREEN = "#00ff66";
@@ -31,7 +32,7 @@ const BACKGROUND = "#202020";
 // Componente principal de la pantalla de alta de credenciales.
 export default function NuevaCredencialScreen() {
   // Obtiene la función compartida que incorpora una credencial a la bóveda.
-  const { addCredential } = useVault();
+  const { addCredential, isUnlocked } = useVault();
 
   // Tipo de registro seleccionado: login web, tarjeta o nota segura.
   const [recordType, setRecordType] = useState<"login" | "card" | "note">("login");
@@ -100,13 +101,8 @@ export default function NuevaCredencialScreen() {
       return;
     }
 
-    let password = "";
-
-    for (let i = 0; i < length; i++) {
-      const index = Math.floor(Math.random() * availableCharacters.length);
-
-      password += availableCharacters[index];
-    }
+    // Aleatoriedad criptográfica (no Math.random).
+    const password = randomString(availableCharacters, length);
 
     setGeneratedPassword(password);
   };
@@ -160,7 +156,7 @@ export default function NuevaCredencialScreen() {
   }, [length, useUppercase, useLowercase, useNumbers, useSymbols]);
 
   // Valida los campos requeridos y convierte el formulario al formato de la bóveda.
-  const saveCredential = () => {
+  const saveCredential = async () => {
     const cleanName = serviceName.trim();
     const cleanUsername = username.trim();
 
@@ -194,8 +190,9 @@ export default function NuevaCredencialScreen() {
         ? `${cardNumber.trim()}${cardExpiry.trim() ? ` · Vence ${cardExpiry.trim()}` : ""}`
         : secureNote.trim();
 
-    // Inserta el registro en el estado compartido consumido por la bóveda.
-    addCredential({
+    // Cifra y guarda la bóveda completa; solo se confirma si el guardado terminó bien.
+    try {
+    await addCredential({
       name: cleanName,
       username: savedUsername,
       password: savedPassword,
@@ -206,6 +203,11 @@ export default function NuevaCredencialScreen() {
         ? securityLevel.percentage >= 90 ? "OPTIMA" : securityLevel.percentage >= 70 ? "FUERTE" : "MEDIA"
         : recordType === "card" ? "TARJETA" : "NOTA",
     });
+    } catch (error) {
+      console.error("Error al guardar la bóveda:", error);
+      Alert.alert("Error", "No se pudo guardar la credencial en la bóveda cifrada.");
+      return;
+    }
 
     Alert.alert(
       "Credencial guardada",
@@ -220,6 +222,9 @@ export default function NuevaCredencialScreen() {
   };
 
   // La interfaz muestra los controles específicos del tipo elegido.
+  // Sin sesión desbloqueada no se muestra nada.
+  if (!isUnlocked) return <Redirect href="/" />;
+
   return (
     <View style={styles.screen}>
       <ScrollView
@@ -229,7 +234,7 @@ export default function NuevaCredencialScreen() {
         {/* HEADER */}
 
         <View style={styles.header}>
-          <Pressable style={styles.backButton} onPress={() => router.back()}>
+          <Pressable style={styles.backButton} onPress={() => (router.canGoBack() ? router.back() : router.replace("/generador"))}>
             <Text style={styles.backText}>‹</Text>
           </Pressable>
 
@@ -240,7 +245,7 @@ export default function NuevaCredencialScreen() {
           </View>
 
           <View style={styles.securityBadge}>
-            <Text style={styles.securityBadgeText}>🔒 AES-256</Text>
+            <Text style={styles.securityBadgeText}>🔒 XCHACHA20</Text>
           </View>
         </View>
 

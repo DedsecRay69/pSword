@@ -17,12 +17,15 @@ import {
   View,
 } from "react-native";
 
-import { hasMasterPassword, verifyMasterPassword } from "@/core/masterPassword";
+import { useVault } from "@/context/VaultContext";
+import { VaultError } from "@/core/vaultManager";
 import { router } from "expo-router";
 
 // Componente principal de acceso: dirige al usuario según el estado de la contraseña maestra.
 export default function HomeScreen() {
+  const { vaultExists, unlockVault } = useVault();
   const [password, setPassword] = useState("");
+  const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
   const [hasPassword, setHasPassword] = useState(false);
   const [error, setError] = useState("");
@@ -32,7 +35,7 @@ export default function HomeScreen() {
 // Comprueba si ya existe una contraseña maestra para decidir el flujo inicial.
     const checkPassword = async () => {
       try {
-        const exists = await hasMasterPassword();
+        const exists = await vaultExists();
 
         setHasPassword(exists);
 
@@ -60,17 +63,25 @@ export default function HomeScreen() {
     try {
       setError("");
 
-      const valid = await verifyMasterPassword(password);
-
-      if (valid) {
-        router.replace("/generador");
-      } else {
-        setError("Contraseña incorrecta.");
-        setPassword("");
-      }
+      setBusy(true);
+      // Deriva la clave (Argon2id), descifra la bóveda y verifica la cadena de integridad.
+      await unlockVault(password);
+      setPassword("");
+      router.replace("/generador");
     } catch (error) {
-      console.error("Error al verificar la contraseña:", error);
-      setError("No se pudo verificar la contraseña.");
+      if (error instanceof VaultError) {
+        setError(
+          error.code === "INTEGRITY"
+            ? `⚠ ALERTA DE INTEGRIDAD: ${error.message} Acceso bloqueado.`
+            : error.message,
+        );
+      } else {
+        console.error("Error al abrir la bóveda:", error);
+        setError("No se pudo abrir la bóveda.");
+      }
+      setPassword("");
+    } finally {
+      setBusy(false);
     }
   };
 
@@ -116,8 +127,8 @@ export default function HomeScreen() {
       {error !== "" && <Text style={styles.errorText}>{error}</Text>}
 
       {/* Botón ingresar */}
-      <Pressable style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>INGRESAR</Text>
+      <Pressable style={styles.button} onPress={handleLogin} disabled={busy}>
+        <Text style={styles.buttonText}>{busy ? "DESCIFRANDO..." : "INGRESAR"}</Text>
       </Pressable>
 
       {/* Configuración de contraseña */}

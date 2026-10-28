@@ -20,10 +20,13 @@ import {
 import { router } from "expo-router";
 
 // Importa la función encargada de almacenar la contraseña
-import { saveMasterPassword } from "@/core/masterPassword";
+import { useVault } from "@/context/VaultContext";
+import { MIN_MASTER_PASSWORD_LENGTH } from "@/core/vaultManager";
 
 // Componente para crear y confirmar la contraseña maestra durante la configuración inicial.
 export default function SetupPasswordScreen() {
+  const { createVault } = useVault();
+  const [busy, setBusy] = useState(false);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -31,7 +34,9 @@ export default function SetupPasswordScreen() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Comprueba que ambas contraseñas coincidan y no estén vacías
-  const passwordsMatch = password === confirmPassword && password.length > 0;
+  const longEnough = password.length >= MIN_MASTER_PASSWORD_LENGTH;
+  const matches = password.length > 0 && password === confirmPassword;
+  const passwordsMatch = longEnough && matches;
 
   // Guarda la contraseña y continúa al siguiente flujo
   const handleSavePassword = async () => {
@@ -40,14 +45,17 @@ export default function SetupPasswordScreen() {
     }
 
     try {
-      // Almacena la contraseña de forma segura
-      await saveMasterPassword(password);
+      setBusy(true);
+      // Crea el archivo .pws cifrado y su cadena de integridad; la contraseña NO se guarda.
+      await createVault(password);
 
       // Lleva al usuario a la pantalla de prueba
       router.replace("/generador");
     } catch (error) {
       // Muestra el error en la consola durante el desarrollo
-      console.error("Error al guardar la contraseña:", error);
+      console.error("Error al crear la bóveda:", error);
+    } finally {
+      setBusy(false);
     }
   };
 
@@ -115,29 +123,40 @@ export default function SetupPasswordScreen() {
       {/* Mensaje de validación */}
       {confirmPassword.length > 0 && (
         <Text style={passwordsMatch ? styles.successText : styles.errorText}>
-          {passwordsMatch
-            ? "Las contraseñas coinciden."
-            : "Las contraseñas no coinciden."}
+          {!longEnough
+            ? `Mínimo ${MIN_MASTER_PASSWORD_LENGTH} caracteres (llevas ${password.length}).`
+            : matches
+              ? "Las contraseñas coinciden."
+              : "Las contraseñas no coinciden."}
         </Text>
       )}
 
       {/* Recomendación */}
       <Text style={styles.recommendation}>
         Se recomienda utilizar una contraseña larga y difícil de adivinar. Esta
-        contraseña será utilizada para proteger su bóveda.
+        contraseña protege su bóveda (mínimo {MIN_MASTER_PASSWORD_LENGTH}{" "}
+        caracteres). ATENCIÓN: no se guarda en ninguna parte, así que si la
+        olvida NO se puede recuperar la bóveda.
       </Text>
 
       {/* Guardar */}
       <Pressable
         style={[styles.button, !passwordsMatch && styles.buttonDisabled]}
-        disabled={!passwordsMatch}
+        disabled={!passwordsMatch || busy}
         onPress={handleSavePassword}
       >
-        <Text style={styles.buttonText}>GUARDAR CONTRASEÑA</Text>
+        <Text style={styles.buttonText}>
+          {busy ? "CREANDO BÓVEDA..." : "CREAR BÓVEDA"}
+        </Text>
       </Pressable>
 
       {/* Volver al login */}
-      <Pressable onPress={() => router.back()} style={styles.backButton}>
+      <Pressable
+        onPress={() =>
+          router.canGoBack() ? router.back() : router.replace("/")
+        }
+        style={styles.backButton}
+      >
         <Text style={styles.backText}>
           ¿Ya tiene una contraseña?{" "}
           <Text style={styles.linkHighlight}>volver al inicio</Text>

@@ -1,146 +1,102 @@
 /**
- * Contexto compartido de credenciales de la bóveda.
- * Expone la lista actual y las operaciones para agregar o eliminar registros,
- * de modo que las pantallas consuman el mismo estado en memoria.
- * Los datos de ejemplo y los registros añadidos se pierden al reiniciar la app.
+ * Contexto de la bóveda cifrada.
+ * Conecta las pantallas con VaultManager (core/vaultManager.ts): crear, desbloquear, bloquear y
+ * persistir cada cambio en el archivo .pws cifrado, registrando una versión en la cadena de integridad.
+ * Las credenciales solo existen en memoria mientras la bóveda está desbloqueada.
  */
-import { createContext, ReactNode, useContext, useState } from "react";
+import { createContext, ReactNode, useCallback, useContext, useMemo, useRef, useState } from "react";
 
-// Modelo completo que utiliza cada tarjeta de credencial dentro de la bóveda.
-export type VaultCredential = {
-  id: string;
-  initials: string;
-  name: string;
-  username: string;
-  password: string;
-  category: string;
-  strength: string;
-  modified: string;
-  expires?: string;
-};
+import { deviceStorage } from "@/core/storage";
+import { VaultCredential } from "@/core/types";
+import { IntegrityStatus, VaultManager } from "@/core/vaultManager";
+
+export type { VaultCredential };
 
 // Datos que aporta el formulario; el contexto genera ID, iniciales y fecha de modificación.
 type NewCredential = Omit<VaultCredential, "id" | "modified" | "initials">;
 
 type VaultContextType = {
+  isUnlocked: boolean;
   credentials: VaultCredential[];
-  addCredential: (credential: NewCredential) => void;
-  removeCredential: (id: string) => void;
+  integrity: IntegrityStatus | null;
+  vaultExists: () => Promise<boolean>;
+  createVault: (masterPassword: string) => Promise<void>;
+  unlockVault: (masterPassword: string) => Promise<void>;
+  lockVault: () => void;
+  addCredential: (credential: NewCredential) => Promise<void>;
+  removeCredential: (id: string) => Promise<void>;
 };
 
-// Contexto React para compartir la misma lista entre pantallas.
 const VaultContext = createContext<VaultContextType | undefined>(undefined);
-
-// Registros ficticios para demostrar el aspecto inicial de la bóveda.
-const INITIAL_CREDENTIALS: VaultCredential[] = [
-  {
-    id: "1",
-    initials: "PD",
-    name: "ProtonMail Dev",
-    username: "alex.sec@pm.me",
-    password: "P7#kLm!92xQ@",
-    category: "2FA ACTIVADO (TOTP)",
-    strength: "OPTIMA",
-    modified: "HACE 20 D",
-  },
-  {
-    id: "2",
-    initials: "AWS",
-    name: "AWS Cloud Production",
-    username: "aws-infra@corp-root.aws",
-    password: "A8#vNq!41Lm$",
-    category: "HARDWARE KEY REQUERIDA",
-    strength: "OPTIMA",
-    modified: "HACE 50 D",
-  },
-  {
-    id: "3",
-    initials: "GH",
-    name: "GitHub Dev Personal",
-    username: "0x-kernel-dev",
-    password: "G7!mQ2#xLp9@",
-    category: "EXPIRA EN 45 DÍAS",
-    strength: "FUERTE",
-    modified: "HACE 120 D",
-    expires: "45 DÍAS",
-  },
-  {
-    id: "4",
-    initials: "GS",
-    name: "Google Legacy Suite",
-    username: "ray.workspace@gmail.com",
-    password: "G!8xL2@pQ7#m",
-    category: "ANTIGÜEDAD ALTA",
-    strength: "MEDIA",
-    modified: "HACE 210 D",
-  },
-  {
-    id: "5",
-    initials: "BC",
-    name: "Binance Crypto Exchange",
-    username: "trader.n0x9@secure-relay.net",
-    password: "B#91Lm!xQ7@p",
-    category: "YUBIKEY FIDO2",
-    strength: "OPTIMA",
-    modified: "HACE 150 D",
-  },
-];
 
 // Obtiene las iniciales que se muestran como icono abreviado de un servicio.
 function getInitials(name: string) {
   const words = name.trim().split(/\s+/);
-
-  if (words.length === 1) {
-    return words[0].slice(0, 2).toUpperCase();
-  }
-
+  if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
   return `${words[0][0]}${words[1][0]}`.toUpperCase();
 }
 
-// Proveedor que mantiene el estado de credenciales disponible para sus pantallas hijas.
 export function VaultProvider({ children }: { children: ReactNode }) {
-  const [credentials, setCredentials] =
-    useState<VaultCredential[]>(INITIAL_CREDENTIALS);
+  const manager = useRef(new VaultManager(deviceStorage)).current;
+  const [isUnlocked, setIsUnlocked] = useState(false);
+  const [credentials, setCredentials] = useState<VaultCredential[]>([]);
+  const [integrity, setIntegrity] = useState<IntegrityStatus | null>(null);
 
-  // Completa los metadatos del registro y lo coloca al principio de la lista.
-  const addCredential = (credential: NewCredential) => {
-    const newCredential: VaultCredential = {
+  // Refleja en la interfaz el estado actual de la sesión de la bóveda.
+  const refresh = useCallback(() => {
+    setCredentials([...manager.getCredentials()]);
+    setIntegrity(manager.getIntegrity());
+    setIsUnlocked(true);
+  }, [manager]);
+
+  const createVault = useCallback(async (masterPassword: string) => {
+    await manager.create(masterPassword);
+    refresh();
+  }, [manager, refresh]);
+
+  const unlockVault = useCallback(async (masterPassword: string) => {
+    await manager.unlock(masterPassword);
+    refresh();
+  }, [manager, refresh]);
+
+  const lockVault = useCallback(() => {
+    manager.lock();
+    setCredentials([]);
+    setIntegrity(null);
+    setIsUnlocked(false);
+  }, [manager]);
+
+  // Cada cambio se guarda cifrado y agrega un bloque a la cadena antes de mostrarse.
+  const addCredential = useCallback(async (credential: NewCredential) => {
+    const created: VaultCredential = {
       ...credential,
-      id: Date.now().toString(),
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, // identificador local, no es un secreto
       initials: getInitials(credential.name),
       modified: "AHORA",
     };
+    await manager.save([created, ...manager.getCredentials()]);
+    refresh();
+  }, [manager, refresh]);
 
-    setCredentials((current) => [newCredential, ...current]);
-  };
+  const removeCredential = useCallback(async (id: string) => {
+    await manager.save(manager.getCredentials().filter((c) => c.id !== id));
+    refresh();
+  }, [manager, refresh]);
 
-  // Elimina de la lista el registro cuyo identificador coincide.
-  const removeCredential = (id: string) => {
-    setCredentials((current) =>
-      current.filter((credential) => credential.id !== id),
-    );
-  };
-
-  return (
-    <VaultContext.Provider
-      value={{
-        credentials,
-        addCredential,
-        removeCredential,
-      }}
-    >
-      {children}
-    </VaultContext.Provider>
+  const value = useMemo(
+    () => ({
+      isUnlocked, credentials, integrity,
+      vaultExists: () => manager.exists(),
+      createVault, unlockVault, lockVault, addCredential, removeCredential,
+    }),
+    [isUnlocked, credentials, integrity, manager, createVault, unlockVault, lockVault, addCredential, removeCredential],
   );
+
+  return <VaultContext.Provider value={value}>{children}</VaultContext.Provider>;
 }
 
-// Hook de acceso al contexto; avisa si se usa fuera del proveedor.
 export function useVault() {
   const context = useContext(VaultContext);
-
-  if (!context) {
-    throw new Error("useVault debe utilizarse dentro de VaultProvider.");
-  }
-
+  if (!context) throw new Error("useVault debe utilizarse dentro de VaultProvider.");
   return context;
 }

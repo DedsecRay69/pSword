@@ -4,7 +4,7 @@
  * o revelar contraseñas, copiarlas y navegar al formulario de nueva credencial.
  */
 import * as Clipboard from "expo-clipboard";
-import { router } from "expo-router";
+import { Redirect, router } from "expo-router";
 import { useMemo, useState } from "react";
 import { useVault } from "@/context/VaultContext";
 import {
@@ -26,7 +26,7 @@ const MUTED = "#777777";
 const BORDER = "#292929";
 
 export default function VaultScreen() {
-  const { credentials } = useVault();
+  const { credentials, isUnlocked, lockVault: lockSession, integrity } = useVault();
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState("TODOS");
   const [visiblePasswords, setVisiblePasswords] = useState<string[]>([]);
@@ -67,8 +67,12 @@ export default function VaultScreen() {
 
 // Regresa a la pantalla de acceso para simular el bloqueo de la bóveda.
   const lockVault = () => {
+    lockSession(); // borra las claves de memoria
     router.replace("/");
   };
+
+  // Sin sesión desbloqueada no se muestra nada.
+  if (!isUnlocked) return <Redirect href="/" />;
 
   return (
     <View style={styles.screen}>
@@ -86,7 +90,7 @@ export default function VaultScreen() {
 
           <View style={styles.headerActions}>
             <View style={styles.securityBadge}>
-              <Text style={styles.securityBadgeText}>🔒 AES-256</Text>
+              <Text style={styles.securityBadgeText}>🔒 XCHACHA20</Text>
             </View>
 
             <Pressable
@@ -119,7 +123,7 @@ export default function VaultScreen() {
         {/* RUTA / UBICACIÓN */}
 
         <View style={styles.locationRow}>
-          <Text style={styles.locationText}>● LOCAL_STORE:/ /REUNTEd</Text>
+          <Text style={styles.locationText}>● LOCAL_STORE:/vault.pws</Text>
 
           <Text style={styles.itemCount}>{credentials.length} ITEMS</Text>
 
@@ -191,11 +195,11 @@ export default function VaultScreen() {
 
         <View style={styles.securityFooter}>
           <Text style={styles.securityFooterText}>
-            &gt; EDIF / RAM BUFFER PERSISTED
+            &gt; {integrity ? `CADENA: ${integrity.blocks} BLOQUES · #${integrity.lastVaultHash.slice(0, 8)}` : "CADENA: —"}
           </Text>
 
           <Text style={styles.securityFooterText}>
-            ● SHA-256 INTEGRITY FALLS
+            ● SHA-256 + HMAC CHAIN
           </Text>
         </View>
 
