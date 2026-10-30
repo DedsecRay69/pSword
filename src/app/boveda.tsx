@@ -3,10 +3,10 @@
  * Muestra las credenciales compartidas, permite buscarlas y filtrarlas, ocultar
  * o revelar contraseñas, copiarlas y navegar al formulario de nueva credencial.
  */
+import { useVault } from "@/context/VaultContext";
 import * as Clipboard from "expo-clipboard";
 import { Redirect, router } from "expo-router";
 import { useMemo, useState } from "react";
-import { useVault } from "@/context/VaultContext";
 import {
   Alert,
   Pressable,
@@ -14,8 +14,9 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  View,
+  View
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const GREEN = "#00ff66";
 const BACKGROUND = "#202020";
@@ -75,7 +76,7 @@ export default function VaultScreen() {
   if (!isUnlocked) return <Redirect href="/" />;
 
   return (
-    <View style={styles.screen}>
+    <SafeAreaView style={styles.screen}>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -90,7 +91,7 @@ export default function VaultScreen() {
 
           <View style={styles.headerActions}>
             <View style={styles.securityBadge}>
-              <Text style={styles.securityBadgeText}>🔒 XCHACHA20</Text>
+              <Text style={styles.securityBadgeText}>🔒 By Ray & LoVult</Text>
             </View>
 
             <Pressable
@@ -104,28 +105,18 @@ export default function VaultScreen() {
 
         {/* AUDITORÍA */}
 
-        <View style={styles.auditCard}>
-          <View style={styles.auditHeader}>
-            <Text style={styles.auditTitle}>
-              ◉ AUDITORÍA DE SALUD CRIPTOGRÁFICA
-            </Text>
+         <View style={styles.auditCard}>
+          <Text style={styles.auditTitle}>
+            ◉ TOTAL DE ELEMENTOS ALMACENADOS
+          </Text>
 
-            <Text style={styles.auditStatus}>96% ÓPTIMO</Text>
-          </View>
-
-          <View style={styles.auditStats}>
-            <AuditStat title="FUERTES" value="12" />
-            <AuditStat title="DÉBILES" value="02" />
-            <AuditStat title="EXPUESTAS" value="00" />
-          </View>
+          <Text style={styles.auditCount}>{credentials.length}</Text>
         </View>
 
         {/* RUTA / UBICACIÓN */}
 
         <View style={styles.locationRow}>
           <Text style={styles.locationText}>● LOCAL_STORE:/vault.pws</Text>
-
-          <Text style={styles.itemCount}>{credentials.length} ITEMS</Text>
 
           <Pressable style={styles.lockButton} onPress={lockVault}>
             <Text style={styles.lockButtonText}>🔒 BLOQUEAR</Text>
@@ -222,7 +213,7 @@ export default function VaultScreen() {
 
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -272,8 +263,6 @@ function CredentialCard({
             <Text style={styles.credentialUsername}>{credential.username}</Text>
           </View>
         </View>
-
-        <Text style={styles.strength}>100% {credential.strength}</Text>
       </View>
 
       {/* Contraseña */}
@@ -398,13 +387,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginTop: 10,
     padding: 9,
-  },
-
-  auditHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 8,
   },
 
   auditTitle: {
@@ -413,34 +396,11 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 
-  auditStatus: {
+  auditCount: {
     color: GREEN,
-    fontSize: 9,
+    fontSize: 32,
     fontWeight: "bold",
-  },
-
-  auditStats: {
-    flexDirection: "row",
-    gap: 5,
-  },
-
-  auditStat: {
-    flex: 1,
-    backgroundColor: "#101010",
-    padding: 7,
-  },
-
-  auditStatTitle: {
-    color: "#777",
-    fontSize: 7,
-    fontWeight: "bold",
-  },
-
-  auditStatValue: {
-    color: GREEN,
-    fontSize: 15,
-    fontWeight: "bold",
-    marginTop: 2,
+    marginTop: 6,
   },
 
   /* UBICACIÓN */
@@ -604,12 +564,6 @@ const styles = StyleSheet.create({
     color: "#777",
     fontSize: 8,
     marginTop: 2,
-  },
-
-  strength: {
-    color: GREEN,
-    fontSize: 7,
-    fontWeight: "bold",
   },
 
   passwordRow: {

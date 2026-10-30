@@ -6,6 +6,7 @@ import Slider from "@react-native-community/slider";
 import ModuleHeader from "./ModuleHeader";
 import ParameterSwitch from "./ParameterSwitch";
 
+import { CHAR_COLORS } from "@/constants/charColors";
 const GREEN = "#00ff66";
 
 type ParametersCardProps = {
@@ -70,8 +71,9 @@ export default function ParametersCard({
         <Text style={styles.minMaxText}>MAX: 20</Text>
       </View>
 
-      <ParameterSwitch
+            <ParameterSwitch
         symbol="AZ"
+        symbolColor={CHAR_COLORS.uppercase}
         title="Mayúsculas"
         description="A-Z alfabético"
         value={useUppercase}
@@ -80,6 +82,7 @@ export default function ParametersCard({
 
       <ParameterSwitch
         symbol="az"
+        symbolColor={CHAR_COLORS.lowercase}
         title="Minúsculas"
         description="a-z alfabético estándar"
         value={useLowercase}
@@ -88,6 +91,7 @@ export default function ParametersCard({
 
       <ParameterSwitch
         symbol="09"
+        symbolColor={CHAR_COLORS.numbers}
         title="Números"
         description="0 al 9 dígitos decimales"
         value={useNumbers}
@@ -96,6 +100,7 @@ export default function ParametersCard({
 
       <ParameterSwitch
         symbol="#$"
+        symbolColor={CHAR_COLORS.symbols}
         title="Símbolos Especiales"
         description="!@#$%^&*()-_=+"
         value={useSymbols}

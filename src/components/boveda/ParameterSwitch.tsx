@@ -5,6 +5,7 @@ const GREEN = "#00ff66";
 
 type ParameterSwitchProps = {
   symbol: string;
+  symbolColor?: string;
   title: string;
   description: string;
   value: boolean;
@@ -13,6 +14,7 @@ type ParameterSwitchProps = {
 
 export default function ParameterSwitch({
   symbol,
+  symbolColor,
   title,
   description,
   value,
@@ -21,7 +23,14 @@ export default function ParameterSwitch({
   return (
     <View style={styles.parameterRow}>
       <View style={styles.parameterSymbolContainer}>
-        <Text style={styles.parameterSymbol}>{symbol}</Text>
+        <Text
+          style={[
+            styles.parameterSymbol,
+            symbolColor ? { color: symbolColor } : null,
+          ]}
+        >
+          {symbol}
+        </Text>
       </View>
 
       <View style={styles.parameterTextContainer}>

@@ -6,16 +6,16 @@
  */
 // useState conserva los valores del formulario; useMemo evita recalcular datos derivados innecesariamente.
 import { useMemo, useState } from "react";
-
 import {
-    Alert,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    View,
+  Alert,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import * as Clipboard from "expo-clipboard";
 import { Redirect, router } from "expo-router";
@@ -226,7 +226,7 @@ export default function NuevaCredencialScreen() {
   if (!isUnlocked) return <Redirect href="/" />;
 
   return (
-    <View style={styles.screen}>
+    <SafeAreaView style={styles.screen}>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -245,7 +245,7 @@ export default function NuevaCredencialScreen() {
           </View>
 
           <View style={styles.securityBadge}>
-            <Text style={styles.securityBadgeText}>🔒 XCHACHA20</Text>
+            <Text style={styles.securityBadgeText}>🔒 By Ray & LoVult</Text>
           </View>
         </View>
 
@@ -369,7 +369,7 @@ export default function NuevaCredencialScreen() {
           La credencial se mantiene en memoria durante esta sesión.
         </Text>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 

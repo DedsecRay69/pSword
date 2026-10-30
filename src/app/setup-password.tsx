@@ -7,7 +7,6 @@
 // antes de almacenarla de forma segura mediante masterPassword.ts
 
 import { useState } from "react";
-
 import {
   Image,
   Pressable,
@@ -16,6 +15,7 @@ import {
   TextInput,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import { router } from "expo-router";
 
@@ -60,7 +60,7 @@ export default function SetupPasswordScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       {/* Logo ASCII */}
       <Image
         source={require("../../assets/images/pSword_banner.png")}
@@ -162,7 +162,7 @@ export default function SetupPasswordScreen() {
           <Text style={styles.linkHighlight}>volver al inicio</Text>
         </Text>
       </Pressable>
-    </View>
+    </SafeAreaView>
   );
 }
 

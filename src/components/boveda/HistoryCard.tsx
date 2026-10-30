@@ -23,7 +23,7 @@ export default function HistoryCard({ history, onClear }: HistoryCardProps) {
         <View style={styles.historyTitleContainer}>
           <Text style={styles.historyIcon}>◷</Text>
 
-          <Text style={styles.historyTitle}>Historial Efímero</Text>
+          <Text style={styles.historyTitle}>Historial Reciente</Text>
 
           <Text style={styles.historyCount}>{history.length}</Text>
         </View>

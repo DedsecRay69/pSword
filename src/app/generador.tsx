@@ -4,15 +4,15 @@
  * estima su fortaleza y permite copiarla o consultar el historial de la sesión.
  */
 import { useMemo, useState } from "react";
-
 import {
   Alert,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
-  View,
+  View
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import * as Clipboard from "expo-clipboard";
 import { Redirect, router } from "expo-router";
@@ -20,6 +20,7 @@ import { Redirect, router } from "expo-router";
 import GeneratorCard from "@/components/boveda/GeneratorCard";
 import HistoryCard from "@/components/boveda/HistoryCard";
 import ParametersCard from "@/components/boveda/ParametersCard";
+import { CHAR_COLORS } from "@/constants/charColors";
 import { useVault } from "@/context/VaultContext";
 import { randomString } from "@/core/passwordGenerator";
 
@@ -140,7 +141,7 @@ export default function TestVaultScreen() {
 
     if (score >= 90) {
       return {
-        text: "PENETRACIÓN IMPOSIBLE",
+        text: "NIVEL ÓPTIMO",
         percentage: 100,
       };
     }
@@ -174,7 +175,7 @@ export default function TestVaultScreen() {
   if (!isUnlocked) return <Redirect href="/" />;
 
   return (
-    <View style={styles.screen}>
+    <SafeAreaView style={styles.screen}>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -190,7 +191,7 @@ export default function TestVaultScreen() {
 
           <View style={styles.headerActions}>
             <View style={styles.securityBadge}>
-              <Text style={styles.securityBadgeText}>🔒 XCHACHA20</Text>
+              <Text style={styles.securityBadgeText}>🔒 By Ray & LoVult</Text>
             </View>
 
             <Pressable
@@ -235,22 +236,21 @@ export default function TestVaultScreen() {
 
           <View style={styles.legend}>
             <Text style={styles.legendText}>
-              <Text style={styles.greenDot}>●</Text> Mayús
+              <Text style={{ color: CHAR_COLORS.uppercase }}>●</Text> Mayús
             </Text>
 
             <Text style={styles.legendText}>
-              <Text style={styles.whiteDot}>●</Text> Minús
+              <Text style={{ color: CHAR_COLORS.lowercase }}>●</Text> Minús
             </Text>
 
             <Text style={styles.legendText}>
-              <Text style={styles.yellowDot}>●</Text> Núm
+              <Text style={{ color: CHAR_COLORS.numbers }}>●</Text> Núm
             </Text>
 
             <Text style={styles.legendText}>
-              <Text style={styles.grayDot}>●</Text> Símb
+              <Text style={{ color: CHAR_COLORS.symbols }}>●</Text> Símb
             </Text>
 
-            <Text style={styles.telemetry}>CERO TELEMETRÍA</Text>
           </View>
 
           {/* GENERAR */}
@@ -287,7 +287,7 @@ export default function TestVaultScreen() {
           <Text style={styles.logoutText}>CERRAR SESIÓN</Text>
         </Pressable>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 

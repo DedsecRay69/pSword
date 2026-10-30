@@ -6,16 +6,15 @@
 // Este script gestiona el inicio de sesión y la interacción entre la interfaz
 // y la lógica de la contraseña maestra definida en masterPassword.ts.
 import { useEffect, useState } from "react";
-
 import {
   Image,
   Linking,
   Pressable,
   StyleSheet,
   Text,
-  TextInput,
-  View,
+  TextInput
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useVault } from "@/context/VaultContext";
 import { VaultError } from "@/core/vaultManager";
@@ -88,14 +87,14 @@ export default function HomeScreen() {
   // Evita mostrar el login mientras se comprueba SecureStore
   if (loading) {
     return (
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
         <Text style={styles.loadingText}>Cargando...</Text>
-      </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       {/* Logo ASCII */}
       <Image
         source={require("../../assets/images/pSword_banner.png")}
@@ -152,7 +151,7 @@ export default function HomeScreen() {
           resizeMode="contain"
         />
       </Pressable>
-    </View>
+    </SafeAreaView>
   );
 }
 

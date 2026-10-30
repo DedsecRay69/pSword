@@ -1,6 +1,6 @@
 /** Tarjeta de interfaz que muestra la contraseña generada y sus acciones principales. */
+import { charColor } from "@/constants/charColors";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-
 import ModuleHeader from "./ModuleHeader";
 
 const GREEN = "#00ff66";
@@ -37,12 +37,16 @@ export default function GeneratorCard({
       />
 
       <View style={styles.passwordBox}>
-        <Text
+               <Text
           style={styles.passwordText}
           numberOfLines={1}
           adjustsFontSizeToFit
         >
-          {password}
+          {Array.from(password).map((char, index) => (
+            <Text key={index} style={{ color: charColor(char) }}>
+              {char}
+            </Text>
+          ))}
         </Text>
 
         <Pressable style={styles.refreshButton} onPress={onGenerate}>
