@@ -30,9 +30,8 @@
 7. [Estructura del proyecto](#estructura-del-proyecto)
 8. [Instalación y ejecución](#instalación-y-ejecución)
 9. [Generar el APK](#generar-el-apk)
-10. [Estado del proyecto](#estado-del-proyecto)
-11. [Limitaciones conocidas](#limitaciones-conocidas)
-12. [Autores](#autores)
+10. [Limitaciones conocidas](#limitaciones-conocidas)
+11. [Autores](#autores)
 
 ---
 
