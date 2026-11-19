@@ -318,29 +318,6 @@ Al terminar, la terminal y la página del build en [expo.dev](https://expo.dev) 
 
 ---
 
-## Estado del proyecto
-
-| Módulo | Estado |
-|---|---|
-| Creación y desbloqueo de la bóveda | Implementado |
-| Cifrado y formato `.pws` | Implementado |
-| Cadena de integridad, ancla y recuperación | Implementado |
-| Generador de contraseñas criptográfico | Implementado |
-| Alta y baja de credenciales | Implementado |
-| Edición y búsqueda avanzada de credenciales | Parcial |
-| Panel de auditoría con datos reales | Pendiente (hoy son valores fijos) |
-| Bloqueo automático por inactividad y segundo plano | Pendiente |
-| Borrado del portapapeles a los 30 segundos | Pendiente |
-| Pantallas de exportar/importar copia y cambio de contraseña maestra | Pendiente (la lógica ya existe) |
-| Escritura atómica del archivo (temporal y renombrado) | Pendiente |
-| Pruebas con Jest ejecutables en el repositorio | Pendiente |
-
-### Pruebas
-
-El núcleo cuenta con una batería de 18 pruebas automatizadas que cubren contraseña correcta e incorrecta, archivo alterado, rollback, cadena borrada, bloque manipulado, firma falsa, recuperación tras cierre inesperado, importación de copia, cambio de contraseña, unicidad del nonce y guardados concurrentes. Se ejecutaron en un entorno de desarrollo y aprobaron; el tiempo de derivación de Argon2id aún debe medirse en un teléfono de gama media.
-
----
-
 ## Limitaciones conocidas
 
 - Un atacante con control total del dispositivo desbloqueado, o con malware que lea la memoria mientras la bóveda está abierta, no es detenido por estos mecanismos.
@@ -353,9 +330,5 @@ El núcleo cuenta con una batería de 18 pruebas automatizadas que cubren contra
 
 ## Autores
 
-- **Juan Andrés Castro**
-- **Jesús Ángel Granados**
-
-Universidad de Cundinamarca · Ingeniería de Software
-
-Repositorio: [github.com/DedsecRay69/pSword](https://github.com/DedsecRay69/pSword)
+- **Juan "Ray" Andrés Castro**
+- **Jesús "LoVult" Ángel Granados**
